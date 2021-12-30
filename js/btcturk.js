@@ -58,6 +58,7 @@ module.exports = class btcturk extends Exchange {
                         'openOrders': 1,
                         'allOrders': 1,
                         'users/transactions/trade': 1,
+                        'users/transactions/crypto': 1,
                     },
                     'post': {
                         'order': 1,
@@ -619,7 +620,7 @@ module.exports = class btcturk extends Exchange {
         if (symbol !== undefined) {
             market = this.market (symbol);
         }
-        const response = await this.privateGetUsersTransactionsTrade ();
+        const response1 = await this.privateGetUsersTransactionsTrade ();
         //
         //     {
         //       "data": [
@@ -641,8 +642,14 @@ module.exports = class btcturk extends Exchange {
         //       "code": "0"
         //     }
         //
-        const data = this.safeValue (response, 'data');
-        return this.parseTrades (data, market, since, limit);
+        const data1 = this.safeValue (response, 'data');
+        const trades = this.parseTrades (data1, market, since, limit);
+        
+        const response2 = await this.privateGetUsersTransactionsCrypto ();
+        const data2 = this.safeValue (response, 'data');
+        const cryptos = this.parseTrades (data2, market, since, limit);
+        
+        return  trades.arrayConcat(cryptos)
     }
 
     nonce () {
